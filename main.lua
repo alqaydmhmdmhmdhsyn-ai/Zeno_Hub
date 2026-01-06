@@ -1,84 +1,75 @@
--- [[ ZENO HUB VIP - METRO LIFE RP ]] --
--- Stable English Version for Delta Executor
+-- [[ ZENO HUB VIP - HIGH PERFORMANCE EDITION ]] --
+-- New Venyx Library: Better Look, More Power, No Lag
 
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
-local Window = Library.CreateLib("🌪️ ZENO HUB VIP", "Ocean")
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Stefanuk12/Venyx-UI-Library/main/source.lua"))()
+local Venyx = Library.new("🌪️ ZENO HUB VIP", 5013109572)
 
--- [[ 📺 VIEW SECTION ]] --
-local ViewTab = Window:NewTab("Display")
-local ViewSection = ViewTab:NewSection("Camera Settings")
+-- [[ THEMES ]] --
+local themes = {
+    Background = Color3.fromRGB(24, 24, 24),
+    Accent = Color3.fromRGB(255, 0, 0), -- Red Theme for Power
+    Section = Color3.fromRGB(33, 33, 33),
+    Text = Color3.fromRGB(255, 255, 255)
+}
 
-ViewSection:NewSlider("iPad View (FOV)", "Expand your screen view", 150, 70, function(s)
-    workspace.CurrentCamera.FieldOfView = s
+-- [[ TABS ]] --
+local MainTab = Venyx:addPage("Main Controls", 5012544693)
+local CombatTab = Venyx:addPage("Combat VIP", 5012544693)
+local VisualsTab = Venyx:addPage("Visuals", 5012544693)
+
+-- [[ MAIN CONTROLS ]] --
+local MainSection = MainTab:addSection("Movement")
+MainSection:addSlider("Super Speed", 16, 16, 500, function(v)
+    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = v
 end)
 
--- [[ 🏙️ METRO LIFE SECTION ]] --
-local CityTab = Window:NewTab("Metro City")
-local CitySection = CityTab:NewSection("Steal & Access")
+MainSection:addSlider("Super Jump", 50, 50, 500, function(v)
+    game.Players.LocalPlayer.Character.Humanoid.JumpPower = v
+end)
 
-CitySection:NewButton("Auto Rob Safe", "TP to nearest safe and rob it", function()
-    pcall(function()
-        for _, v in pairs(workspace:GetDescendants()) do
-            if v.Name == "Safe" or v.Name == "MoneySafe" then
-                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
-                break
-            end
+local MetroSection = MainTab:addSection("Metro Life Exploits")
+MetroSection:addButton("Rob All Safes (Teleport)", function()
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v.Name == "Safe" or v.Name == "MoneySafe" then
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
+            wait(0.3)
         end
-    end)
+    end
 end)
 
-_G.Noclip = false
-CitySection:NewToggle("Noclip (Walk Through Walls)", "Enter any locked house", function(state)
-    _G.Noclip = state
+-- [[ COMBAT VIP (THE POWER) ]] --
+local KillSection = CombatTab:addSection("Kill Features")
+_G.FlingAll = false
+KillSection:addToggle("Super Fling Aura (Kill All)", false, function(v)
+    _G.FlingAll = v
 end)
 
--- [[ ⚔️ COMBAT SECTION ]] --
-local CombatTab = Window:NewTab("Combat")
-local CombatSection = CombatTab:NewSection("Attack Features")
-
-_G.KillAura = false
-CombatSection:NewToggle("Kill/Fling Aura", "Fly away any nearby players", function(state)
-    _G.KillAura = state
-    task.spawn(function()
-        while _G.KillAura do
-            task.wait(0.1)
-            pcall(function()
-                local player = game.Players.LocalPlayer
-                for _, target in pairs(game.Players:GetPlayers()) do
-                    if target ~= player and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
-                        local dist = (player.Character.HumanoidRootPart.Position - target.Character.HumanoidRootPart.Position).Magnitude
-                        if dist < 15 then
-                            local velocity = Vector3.new(0, 1000, 0)
-                            target.Character.HumanoidRootPart.Velocity = velocity
-                        end
-                    end
-                end
-            end)
-        end
-    end)
+_G.Invis = false
+KillSection:addToggle("Ghost Mode (Invisible)", false, function(v)
+    _G.Invis = v
+    if v then
+        game.Players.LocalPlayer.Character.LowerTorso:Destroy() -- Glitch to go invisible
+    end
 end)
 
--- [[ ⚡ PLAYER SECTION ]] --
-local PlayerTab = Window:NewTab("Player")
-local PlayerSection = PlayerTab:NewSection("Movement")
-
-PlayerSection:NewSlider("WalkSpeed", "Increase your speed", 500, 16, function(s)
-    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = s
+-- [[ VISUALS ]] --
+local CameraSection = VisualsTab:addSection("Camera Settings")
+CameraSection:addSlider("iPad View FOV", 70, 70, 150, function(v)
+    workspace.CurrentCamera.FieldOfView = v
 end)
 
-PlayerSection:NewSlider("JumpPower", "Jump higher", 500, 50, function(s)
-    game.Players.LocalPlayer.Character.Humanoid.JumpPower = s
-end)
-
--- [[ SYSTEM SYNC ]] --
+-- [[ LOGIC ]] --
 game:GetService("RunService").Stepped:Connect(function()
-    pcall(function()
-        if _G.Noclip and game.Players.LocalPlayer.Character then
-            for _, part in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
-                if part:IsA("BasePart") then part.CanCollide = false end
+    if _G.FlingAll then
+        for _, p in pairs(game.Players:GetPlayers()) do
+            if p ~= game.Players.LocalPlayer and p.Character then
+                local d = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - p.Character.HumanoidRootPart.Position).Magnitude
+                if d < 25 then
+                    p.Character.HumanoidRootPart.Velocity = Vector3.new(999999, 999999, 999999)
+                end
             end
         end
-    end)
+    end
 end)
 
-print("ZENO HUB VIP: Loaded Successfully")
+Venyx:SelectPage(MainTab, true)
