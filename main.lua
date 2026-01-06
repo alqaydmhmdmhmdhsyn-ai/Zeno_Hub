@@ -1,51 +1,117 @@
--- [[ ZENO HUB - ARABIC EDITION ]] --
+-- [[ ZENO HUB - ARABIC ULTIMATE ]] --
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
    Name = "🌪️ زينو هب | ZENO HUB",
-   LoadingTitle = "جاري التشغيل...",
-   LoadingSubtitle = "بواسطة زينو",
-   ConfigurationSaving = { Enabled = true, FolderName = "ZenoArabic" },
+   LoadingTitle = "جاري تفعيل المميزات...",
+   LoadingSubtitle = "بواسطة زينو - ZENO",
+   ConfigurationSaving = { Enabled = true, FolderName = "ZenoHub" },
    KeySystem = false
 })
 
-local AdminTab = Window:CreateTab("⚡ قسم الأدمن", 4483362458)
-AdminTab:CreateButton({
-   Name = "فتح قائمة الأدمن (Infinite Yield)",
-   Callback = function()
-      loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+-- [[ قائمة اللاعب ]] --
+local PlayerTab = Window:CreateTab("🏃 قائمة اللاعب", 4483362458)
+
+PlayerTab:CreateSlider({
+   Name = "سرعة الجري (Speed)",
+   Range = {16, 500},
+   Increment = 1,
+   CurrentValue = 16,
+   Callback = function(Value)
+      game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
    end,
 })
 
-local PuppetTab = Window:CreateTab("👥 تحكم اللاعبين", 4483362458)
-PuppetTab:CreateButton({
-   Name = "سحب الجميع (Bring All)",
-   Callback = function()
-      for _, v in pairs(game.Players:GetPlayers()) do
-         if v.Name ~= game.Players.LocalPlayer.Name then
-            pcall(function()
-               v.Character.HumanoidRootPart.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, -5)
-            end)
+PlayerTab:CreateSlider({
+   Name = "قوة القفز (Jump)",
+   Range = {50, 500},
+   Increment = 1,
+   CurrentValue = 50,
+   Callback = function(Value)
+      game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
+   end,
+})
+
+PlayerTab:CreateToggle({
+   Name = "طيران (Fly)",
+   CurrentValue = false,
+   Callback = function(Value)
+      if Value then
+          _G.Flying = true
+          local p = game.Players.LocalPlayer
+          local char = p.Character
+          local mouse = p:GetMouse()
+          while _G.Flying do
+              task.wait()
+              if char:FindFirstChild("HumanoidRootPart") then
+                  char.HumanoidRootPart.Velocity = mouse.Hit.lookVector * 100
+              end
+          end
+      else
+          _G.Flying = false
+      end
+   end,
+})
+
+-- [[ قائمة كشف الأماكن ]] --
+local ESPTab = Window:CreateTab("👁️ كشف الأماكن (ESP)", 4483362458)
+
+ESPTab:CreateToggle({
+   Name = "تفعيل كشف اللاعبين (Boxes)",
+   CurrentValue = false,
+   Callback = function(state)
+      _G.ESP_Enabled = state
+      for _, player in pairs(game.Players:GetPlayers()) do
+         if player ~= game.Players.LocalPlayer and player.Character then
+            if state then
+               local highlight = Instance.new("Highlight", player.Character)
+               highlight.Name = "ZenoESP"
+               highlight.FillColor = Color3.fromRGB(255, 0, 0)
+            else
+               if player.Character:FindFirstChild("ZenoESP") then
+                  player.Character.ZenoESP:Destroy()
+               end
+            end
          end
       end
    end,
 })
 
-local SelfTab = Window:CreateTab("🔥 مهاراتك", 4483362458)
-SelfTab:CreateSlider({
-   Name = "سرعة الجري",
-   Range = {16, 500},
-   Increment = 1,
-   CurrentValue = 16,
-   Callback = function(v) game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = v end,
-})
+-- [[ قائمة الأدمن الداخلية ]] --
+local AdminTab = Window:CreateTab("🛡️ أدمن داخلي", 4483362458)
 
-SelfTab:CreateButton({
-   Name = "طيران (Fly)",
+AdminTab:CreateButton({
+   Name = "درع الحماية (God Mode)",
    Callback = function()
-      loadstring(game:HttpGet("https://raw.githubusercontent.com/XNEOFF/FlyGuiV3/main/FlyGuiV3.lua"))()
+      game.Players.LocalPlayer.Character.Humanoid.MaxHealth = math.huge
+      game.Players.LocalPlayer.Character.Humanoid.Health = math.huge
    end,
 })
 
-local CreditsTab = Window:CreateTab("📜 معلومات", 4483362458)
-CreditsTab:CreateParagraph({Title = "صنع بواسطة:", Content = "ZENO - زينو"})
+AdminTab:CreateButton({
+   Name = "تدمير الجاذبية (No Gravity)",
+   Callback = function()
+      game.Workspace.Gravity = 0
+   end,
+})
+
+AdminTab:CreateButton({
+   Name = "إعادة الجاذبية (Reset Gravity)",
+   Callback = function()
+      game.Workspace.Gravity = 196.2
+   end,
+})
+
+AdminTab:CreateButton({
+   Name = "اختراق الجدران (Noclip)",
+   Callback = function()
+      game:GetService("RunService").Stepped:Connect(function()
+         for _, v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+            if v:IsA("BasePart") then v.CanCollide = false end
+         end
+      end)
+   end,
+})
+
+local CreditsTab = Window:CreateTab("📜 حقوق", 4483362458)
+CreditsTab:CreateParagraph({Title = "ZENO HUB", Content = "هذا السكريبت صنع خصيصاً لزينو - استمتع بالتصوير!"})
